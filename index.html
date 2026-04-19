@@ -78,6 +78,7 @@
 
         .search-bar {
             flex-grow: 1;
+            width: 100%; /* Adiciona isso */
             padding: 12px 20px;
             border-radius: 30px;
             border: 2px solid transparent;
@@ -97,11 +98,16 @@
             border: none;
             width: 50px;
             height: 50px;
+            min-width: 50px; /* Garante o tamanho mínimo */
             border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: transform 0.2s ease, background 0.3s ease;
+            flex-shrink: 0; /* Essa é a mágica que impede ele de amassar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .theme-btn:hover { transform: scale(1.1) rotate(15deg); }
