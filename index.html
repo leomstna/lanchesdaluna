@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanches da Luna - Cardápio Digital</title>
+    <meta name="theme-color" content="#ff4757">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4757;
+            --secondary: #ffa502;
+            --bg: #f8f9fa;
+            --text: #2f3542;
+            --card-bg: #ffffff;
+            --radius: 20px;
+            --border-color: #eee;
+            --header-grad: linear-gradient(135deg, #ff4757, #ffa502);
+            --destaque-bg: linear-gradient(135deg, rgba(255,165,2,0.1), rgba(255,71,87,0.1));
+            --destaque-border: var(--secondary);
+            --input-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1e272e;
+            --text: #d2dae2;
+            --card-bg: #2f3542;
+            --border-color: #485460;
+            --header-grad: linear-gradient(135deg, #83343e, #8f6210);
+            --destaque-bg: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2));
+            --destaque-border: #485460;
+            --input-bg: #485460;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: 80px;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Header */
+        header {
+            background: var(--header-grad);
+            color: white;
+            text-align: center;
+            padding: 40px 20px 60px;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            position: relative;
+            transition: background 0.4s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 5px;
+        }
+
+        /* Controles Topo */
+        .top-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: -30px auto 30px;
+            max-width: 600px;
+            position: relative;
+            z-index: 10;
+            padding: 0 20px;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus { border-color: var(--primary); }
+
+        .theme-btn {
+            background: var(--card-bg);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+
+        .theme-btn:hover { transform: scale(1.1) rotate(15deg); }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Destaques */
+        .destaques {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: var(--destaque-bg);
+            border-radius: var(--radius);
+            border: 2px solid var(--destaque-border);
+            transition: all 0.3s ease;
+        }
+
+        .destaques-title {
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        /* Sistema de Abas */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-family: inherit;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+        }
+
+        .tab-content { 
+            display: none; 
+            animation: fadeInTab 0.4s ease-out forwards;
+        }
+        
+        .tab-content.active { display: block; }
+
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* Cards de Produto */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 3px solid var(--secondary);
+            background: #eccc68; 
+        }
+
+        .card-body { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+        .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .card-price { color: var(--primary); font-size: 1.4rem; font-weight: 700; }
+
+        /* Botão Detalhes (Ingredientes) */
+        .btn-detalhes {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 5px 0;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .btn-detalhes:hover { color: var(--primary); }
+
+        .detalhes-lista {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, margin 0.3s ease-out, opacity 0.3s ease-out;
+            font-size: 0.85rem;
+            color: #7f8fa6;
+            opacity: 0;
+        }
+
+        .detalhes-lista.aberto {
+            max-height: 200px;
+            margin-top: 10px;
+            opacity: 1;
+        }
+
+        .detalhes-lista p { margin-bottom: 5px; font-weight: 600; color: var(--text); }
+        .detalhes-lista ul { padding-left: 20px; }
+
+        /* WhatsApp Flutuante */
+        .whatsapp-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #25d366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .whatsapp-fab:hover { transform: scale(1.1); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Lanches da Luna</h1>
+        <p>Nosso Cardápio Completo</p>
+    </header>
+
+    <div class="top-controls">
+        <input type="text" class="search-bar" id="search" placeholder="O que você está procurando?">
+        <button class="theme-btn" onclick="toggleTheme()" id="themeIcon">🌙</button>
+    </div>
+
+    <div class="container">
+        
+        <div class="destaques" id="secao-destaques">
+            <h2 class="destaques-title">👑 Combos Mais Pedidos</h2>
+            <div class="menu-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+                
+                <div class="card item-produto" data-nome="Combo Brocação">
+                    <img src="https://images.unsplash.com/photo-1594212691516-436f50220fb3?w=500&q=80" class="card-img" alt="Combo" onerror="this.src='https://placehold.co/500x300/ff4757/white?text=Combo'">
+                    <div class="card-body">
+                        <div class="card-title">Combo "Brocação"</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 10,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ver O Que Vem <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <p>Contém:</p>
+                            <ul>
+                                <li>1 Sanduíche Natural de Frango</li>
+                                <li>1 Suco Natural (Laranja/Goiaba)</li>
+                                <li>1 Fatia de Bolo Simples</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém glúten, lactose e ovos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Combo Família">
+                    <img src="https://images.unsplash.com/photo-1576867757430-814088bc0cb2?w=500&q=80" class="card-img" alt="Combo Família" onerror="this.src='https://placehold.co/500x300/ffa502/white?text=Combo+Familia'">
+                    <div class="card-body">
+                        <div class="card-title">Combo Família 🚀</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 25,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ver O Que Vem <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <p>Contém:</p>
+                            <ul>
+                                <li>4 Empadas de Frango</li>
+                                <li>2 Pipocas Doces Gigantes</li>
+                                <li>1 Refri 2 Litros</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém glúten, lactose e corantes.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="tabs" id="abas-container">
+            <button class="tab-btn active" onclick="abrirAba(event, 'salgados')">Salgados</button>
+            <button class="tab-btn" onclick="abrirAba(event, 'doces')">Doces</button>
+            <button class="tab-btn" onclick="abrirAba(event, 'bebidas')">Bebidas</button>
+        </div>
+
+        <div id="salgados" class="tab-content active">
+            <div class="menu-grid">
+                
+                <div class="card item-produto" data-nome="Empada de Frango">
+                    <img src="https://images.unsplash.com/photo-1604423043492-4138ce6a581f?w=500&q=80" class="card-img" alt="Empada" onerror="this.src='https://placehold.co/500x300/ffa502/white?text=Empada'">
+                    <div class="card-body">
+                        <div class="card-title">Empada de Frango</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 3,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Farinha de trigo</li>
+                                <li>Frango desfiado com temperos</li>
+                                <li>Azeitona preta</li>
+                                <li>Margarina</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém glúten e derivados de leite.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Sanduíche Natural">
+                    <img src="https://images.unsplash.com/photo-1619096252214-ef06c45683e3?w=500&q=80" class="card-img" alt="Sanduíche" onerror="this.src='https://placehold.co/500x300/ffa502/white?text=Sanduiche'">
+                    <div class="card-body">
+                        <div class="card-title">Sanduíche Natural</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 6,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Pão de forma integral</li>
+                                <li>Patê de frango e maionese</li>
+                                <li>Cenoura ralada, alface, tomate</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém glúten e soja.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Kibe Recheado">
+                    <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500&q=80" class="card-img" alt="Kibe" onerror="this.src='https://placehold.co/500x300/ffa502/white?text=Kibe'">
+                    <div class="card-body">
+                        <div class="card-title">Kibe c/ Catupiry</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 4,50</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Trigo para kibe</li>
+                                <li>Carne moída temperada c/ hortelã</li>
+                                <li>Recheio de Catupiry original</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém glúten e lactose.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Pipoca Salgada">
+                    <img src="https://images.unsplash.com/photo-1572883454114-1f062d165682?w=500&q=80" class="card-img" alt="Pipoca" onerror="this.src='https://placehold.co/500x300/ffa502/white?text=Pipoca'">
+                    <div class="card-body">
+                        <div class="card-title">Pipoca Salgada</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 1,50</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Milho premium</li>
+                                <li>Óleo de soja e sal</li>
+                                <li>Leve toque de manteiga</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém derivados de soja e leite.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="doces" class="tab-content">
+            <div class="menu-grid">
+                
+                <div class="card item-produto" data-nome="Bolo com Cobertura">
+                    <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&q=80" class="card-img" alt="Bolo Cobertura" onerror="this.src='https://placehold.co/500x300/ff4757/white?text=Bolo'">
+                    <div class="card-body">
+                        <div class="card-title">Bolo com Cobertura</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 6,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Massa de chocolate (Cacau 50%)</li>
+                                <li>Cobertura de brigadeiro tradicional</li>
+                                <li>Farinha, ovos, leite</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém glúten, lactose e ovos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Bolo Simples">
+                    <img src="https://images.unsplash.com/photo-1557925923-33b251dc3296?w=500&q=80" class="card-img" alt="Bolo Simples" onerror="this.src='https://placehold.co/500x300/ff4757/white?text=Bolo'">
+                    <div class="card-body">
+                        <div class="card-title">Bolo Simples</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 3,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Massa de baunilha</li>
+                                <li>Farinha de trigo, ovos, leite, açúcar</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém glúten, lactose e ovos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Pipoca Doce">
+                    <img src="https://images.unsplash.com/photo-1585672842426-17b8f95c102a?w=500&q=80" class="card-img" alt="Pipoca Doce" onerror="this.src='https://placehold.co/500x300/ff4757/white?text=Pipoca'">
+                    <div class="card-body">
+                        <div class="card-title">Pipoca Doce</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 2,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Milho estourado</li>
+                                <li>Calda de açúcar com corante vermelho</li>
+                                <li>Toque de leite de coco</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Pode conter traços de leite.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Pudim de Leite">
+                    <img src="https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=500&q=80" class="card-img" alt="Pudim" onerror="this.src='https://placehold.co/500x300/ff4757/white?text=Pudim'">
+                    <div class="card-body">
+                        <div class="card-title">Fatia de Pudim</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 5,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Leite condensado</li>
+                                <li>Leite integral e Ovos</li>
+                                <li>Calda de caramelo caseira</li>
+                            </ul>
+                            <p style="color: #ff4757; font-size: 0.8rem; margin-top:5px;">⚠️ Alérgicos: Contém lactose e ovos. Zero glúten.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="bebidas" class="tab-content">
+            <div class="menu-grid">
+                
+                <div class="card item-produto" data-nome="Suco Natural">
+                    <img src="https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=500&q=80" class="card-img" alt="Suco" onerror="this.src='https://placehold.co/500x300/00cec9/white?text=Suco'">
+                    <div class="card-body">
+                        <div class="card-title">Suco Natural Copão</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 2,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Ingredientes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Polpa de fruta (Goiaba, Laranja ou Maracujá)</li>
+                                <li>Água e açúcar</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card item-produto" data-nome="Refrigerante Lata">
+                    <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80" class="card-img" alt="Refrigerante" onerror="this.src='https://placehold.co/500x300/00cec9/white?text=Refri'">
+                    <div class="card-body">
+                        <div class="card-title">Refrigerante (350ml)</div>
+                        <div class="price-row">
+                            <span class="card-price">R$ 4,00</span>
+                        </div>
+                        <button class="btn-detalhes" onclick="toggleDetalhes(this)">Detalhes <span>🔽</span></button>
+                        <div class="detalhes-lista">
+                            <ul>
+                                <li>Opções: Coca-Cola, Guaraná, Fanta</li>
+                                <li>Bebida gaseificada com açúcar e corantes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/5575988299282?text=Oi%20Luna!%20Dei%20uma%20olhada%20no%20cardápio%20e%20queria%20fazer%20um%20pedido." target="_blank" class="whatsapp-fab" title="Fazer pedido no WhatsApp">
+        💬
+    </a>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeIcon');
+            if (html.getAttribute('data-theme') === 'light') {
+                html.setAttribute('data-theme', 'dark');
+                btn.innerText = '☀️';
+            } else {
+                html.setAttribute('data-theme', 'light');
+                btn.innerText = '🌙';
+            }
+        }
+
+        function abrirAba(evt, nomeAba) {
+            document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+            document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+            
+            const targetAba = document.getElementById(nomeAba);
+            targetAba.classList.remove("active");
+            void targetAba.offsetWidth; 
+            targetAba.classList.add("active");
+            
+            evt.currentTarget.classList.add("active");
+        }
+
+        function toggleDetalhes(btn) {
+            const lista = btn.nextElementSibling;
+            const seta = btn.querySelector('span');
+            
+            if (lista.classList.contains('aberto')) {
+                lista.classList.remove('aberto');
+                seta.style.transform = 'rotate(0deg)';
+            } else {
+                lista.classList.add('aberto');
+                seta.style.display = 'inline-block';
+                seta.style.transform = 'rotate(180deg)';
+                seta.style.transition = 'transform 0.3s';
+            }
+        }
+
+        document.getElementById('search').addEventListener('input', function(e) {
+            const termo = e.target.value.toLowerCase();
+            const produtos = document.querySelectorAll('.item-produto');
+            const abasContainer = document.getElementById('abas-container');
+            const destaques = document.getElementById('secao-destaques');
+
+            if (termo !== '') {
+                abasContainer.style.display = 'none';
+                destaques.style.display = 'none';
+                document.querySelectorAll(".tab-content").forEach(el => {
+                    el.style.display = 'block';
+                    el.style.animation = 'none'; 
+                });
+                
+                produtos.forEach(produto => {
+                    const nome = produto.getAttribute('data-nome').toLowerCase();
+                    if(nome.includes(termo)) {
+                        produto.style.display = 'flex';
+                    } else {
+                        produto.style.display = 'none';
+                    }
+                });
+            } else {
+                abasContainer.style.display = 'flex';
+                destaques.style.display = 'block';
+                document.querySelectorAll(".tab-content").forEach(el => {
+                    el.style.display = '';
+                    el.style.animation = ''; 
+                });
+                produtos.forEach(produto => produto.style.display = 'flex');
+                
+                document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+                document.getElementById('salgados').classList.add("active");
+            }
+        });
+    </script>
+    <script>
+        // Registra o Service Worker pra virar PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('App pronto para instalar!', registration.scope);
+                })
+                .catch(err => {
+                    console.log('Deu ruim no Service Worker: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
