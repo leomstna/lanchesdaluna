@@ -64,28 +64,21 @@
             margin-bottom: 5px;
         }
 
-        /* Controles Topo */
+        /* Controles Topo (Bala de Prata Final com Grid) */
         .top-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: -30px 20px 30px 20px; /* Margem segura nas laterais pro mobile, não vaza mais */
+            display: grid;
+            grid-template-columns: 1fr 50px; /* Coluna 1 pega o resto, Coluna 2 trava em 50px */
+            gap: 12px;
+            width: 100%;
+            max-width: 600px;
+            margin: -30px auto 30px auto;
+            padding: 0 20px;
             position: relative;
             z-index: 10;
-            max-width: 600px;
-        }
-
-        /* Se abrir no PC, centraliza bonitinho */
-        @media (min-width: 640px) {
-            .top-controls {
-                margin: -30px auto 30px auto;
-            }
         }
 
         .search-bar {
-            flex: 1; /* Pega só o espaço que sobrar */
-            min-width: 0; /* Impede a barra de forçar o tamanho do texto */
-            /* Sem width: 100% aqui, é isso que tava empurrando o botão */
+            width: 100%;
             padding: 12px 20px;
             border-radius: 30px;
             border: 2px solid transparent;
@@ -103,9 +96,8 @@
         .theme-btn {
             background: var(--card-bg);
             border: none;
-            width: 50px;
+            width: 100%; /* Preenche os 50px da coluna do grid */
             height: 50px;
-            flex: 0 0 50px; /* Trava blindada: não cresce, não encolhe, fica com exatos 50px */
             border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
